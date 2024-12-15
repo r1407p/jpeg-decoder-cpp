@@ -33,32 +33,28 @@ namespace jpeg_decoder {
 
     ResultCode JpegDecoder::decodeJpegFile() {
         std::cout << "Decode input file: " << inputFilename << std::endl;
-        if (!imgaefile_stream.is_open() || !imgaefile_stream.good())
-        {
-            std::cerr << "Unable scan image file: \'" + std::string(inputFilename) + "\'" << std::endl;
+
+        // Check if file is opened and valid
+        if (!imgaefile_stream.is_open() || !imgaefile_stream.good()) {
+            std::cerr << "Unable to scan image file: '" + std::string(inputFilename) + "'" << std::endl;
             return ResultCode::ERROR;
         }
 
-        uint8_t byte;  
+        uint8_t byte;
         
-        ResultCode status = ResultCode::DECODE_DONE;
-        
-        while (imgaefile_stream >> std::noskipws >> byte)
-        {
-            std::cout << "Byte: " << byte << std::endl;
-            if (byte == JFIF_BYTE_FF)
-            {
-                imgaefile_stream >> std::noskipws >> byte;
-
-            }
-            else
-            {
-                std::cout << "[ FATAL ] Invalid JFIF file! Terminating..." << std::endl;
-                status = ResultCode::ERROR;
-                break;
-            }
+        // Step 1: Read the JPEG header
+        // JPEG header starts with 0xFF 0xD8 (SOI marker)
+        imgaefile_stream.read(reinterpret_cast<char*>(&byte), 1);
+        if (byte != JFIF_BYTE_FF) {
+            std::cerr << "Invalid JPEG file: Missing SOI marker" << std::endl;
+            return ResultCode::ERROR;
+        }
+        imgaefile_stream.read(reinterpret_cast<char*>(&byte), 1);
+        if (byte != JFIF_SOI) {
+            std::cerr << "Invalid JPEG file: Missing SOI marker" << std::endl;
+            return ResultCode::ERROR;
         }
 
-        return status;
+        std::cout << "Found SOI marker, start parsing the JPEG header..." << std::endl;
     }
 }
