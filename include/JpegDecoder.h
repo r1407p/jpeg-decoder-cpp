@@ -11,6 +11,7 @@ namespace jpeg_decoder {
         JpegDecoder(const char* inputFilename);
         ~JpegDecoder();
         void readJpegFile();
+        void closeJpegFile();
         ResultCode decodeJpegFile();
 
     private:
