@@ -155,8 +155,30 @@ namespace jpeg_decoder {
         return ResultCode::SUCCESS;
     }
 
-    ResultCode JpegDecoder::parseCOMSegment() {
+    ResultCode JpegDecoder::parseCOMSegment() { ///v///
         std::cout << "Parsing comment segment..." << std::endl;
+        uint16_t lenByte = 0;
+        uint8_t byte = 0;
+        std::string comment;
+        imgaefile_stream.read(reinterpret_cast<char *>(&lenByte), 2);
+        lenByte = htons(lenByte);
+        std::size_t curPos = imgaefile_stream.tellg();
+        std::cout<< "Comment segment length: " << lenByte << std::endl;
+
+        for (auto i = 0; i < lenByte - 2; ++i)
+        {
+            imgaefile_stream >> std::noskipws >> byte;
+            
+            if (byte == JFIF_BYTE_FF)
+            {
+                std::cout << "Unexpected start of marker at offest: " << curPos + i << std::endl;
+                std::cout << "Comment segment content: " << comment << std::endl;
+                return ResultCode::ERROR;
+            }
+            
+            comment.push_back(static_cast<char>(byte));
+        }
+        std::cout << "Comment segment content: " << comment << std::endl;
 
         std::cout << "Finished parsing comment segment [OK]" << std::endl;
         return ResultCode::SUCCESS;
@@ -169,7 +191,7 @@ namespace jpeg_decoder {
         return ResultCode::SUCCESS;
     }
 
-    ResultCode JpegDecoder::parseSOF0Segment() {
+    ResultCode JpegDecoder::parseSOF0Segment() {    ////
         std::cout << "Parsing SOF-0 segment..." << std::endl;
 
         std::cout << "Finished parsing SOF-0 segment [OK]" << std::endl;
