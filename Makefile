@@ -1,6 +1,7 @@
 # Compiler and flags
 CXX = g++
-CXXFLAGS = -std=c++11 -Iinclude
+CXXFLAGS = -std=c++11 -Iinclude -Ilib
+
 
 # Source files and output binary
 SOURCES = main.cpp src/JpegDecoder.cpp
