@@ -14,12 +14,23 @@ namespace jpeg_decoder {
         void closeJpegFile();
         ResultCode decodeJpegFile();
 
+        uint16_t length;
+        uint8_t precision;
+        uint16_t height;
+        uint16_t width;
+        uint8_t numComponents;
+
     private:
         // Private member variables
         const char* inputFilename;
         std::ifstream imgaefile_stream;
 
         // Private member functions
+        uint16_t readTwoBytes();
+        uint8_t readByte();
+        void processDQT();
+        void processDHT();
+
 
     };
 }
