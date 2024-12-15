@@ -79,13 +79,13 @@ namespace jpeg_decoder {
             
             switch(byte)
             {
-                case JFIF_SOI  : logFile  << "Found segment, Start of Image (FFD8)" << std::endl; return ResultCode::SUCCESS;
-                case JFIF_APP0 : logFile  << "Found segment, JPEG/JFIF Image Marker segment (APP0)" << std::endl; parseAPP0Segment(); return ResultCode::SUCCESS;
-                case JFIF_COM  : logFile  << "Found segment, Comment(FFFE)" << std::endl; parseCOMSegment(); return ResultCode::SUCCESS;
-                case JFIF_DQT  : logFile  << "Found segment, Define Quantization Table (FFDB)" << std::endl; parseDQTSegment(); return ResultCode::SUCCESS;
-                case JFIF_SOF0 : logFile  << "Found segment, Start of Frame 0: Baseline DCT (FFC0)" << std::endl; return parseSOF0Segment();
-                case JFIF_DHT  : logFile  << "Found segment, Define Huffman Table (FFC4)" << std::endl; parseDHTSegment(); return ResultCode::SUCCESS;
-                case JFIF_SOS  : logFile  << "Found segment, Start of Scan (FFDA)" << std::endl; parseSOSSegment(); return ResultCode::SUCCESS;
+                case JFIF_SOI  : std::cout  << "Found segment, Start of Image (FFD8)" << std::endl; return ResultCode::SUCCESS;
+                case JFIF_APP0 : std::cout  << "Found segment, JPEG/JFIF Image Marker segment (APP0)" << std::endl; parseAPP0Segment(); return ResultCode::SUCCESS;
+                case JFIF_COM  : std::cout  << "Found segment, Comment(FFFE)" << std::endl; parseCOMSegment(); return ResultCode::SUCCESS;
+                case JFIF_DQT  : std::cout  << "Found segment, Define Quantization Table (FFDB)" << std::endl; parseDQTSegment(); return ResultCode::SUCCESS;
+                case JFIF_SOF0 : std::cout  << "Found segment, Start of Frame 0: Baseline DCT (FFC0)" << std::endl; return parseSOF0Segment();
+                case JFIF_DHT  : std::cout  << "Found segment, Define Huffman Table (FFC4)" << std::endl; parseDHTSegment(); return ResultCode::SUCCESS;
+                case JFIF_SOS  : std::cout  << "Found segment, Start of Scan (FFDA)" << std::endl; parseSOSSegment(); return ResultCode::SUCCESS;
             }
             
         }
@@ -96,11 +96,11 @@ namespace jpeg_decoder {
         }
 
     }
-    void JpegDecoder::parseAPP0Segment() {
+    ResultCode JpegDecoder::parseAPP0Segment() {
         // Ignore the image thumbnail data
         std::cout << "Parsing JPEG/JFIF marker segment (APP-0)..." << std::endl;
-        UInt16 lenByte = 0;
-        UInt8 byte = 0;
+        uint16_t lenByte = 0;
+        uint8_t byte = 0;
         imgaefile_stream.read(reinterpret_cast<char *>(&lenByte), 2);
         lenByte = htons(lenByte);
         std::size_t curPos = imgaefile_stream.tellg();
@@ -111,7 +111,7 @@ namespace jpeg_decoder {
         imgaefile_stream.seekg(5, std::ios_base::cur);
 
         // Read the major and minor version numbers
-        UInt8 majVersionByte, minVersionByte;
+        uint8_t majVersionByte, minVersionByte;
         imgaefile_stream >> std::noskipws >> majVersionByte >> minVersionByte;
 
         std::cout << "JFIF version: " << (int)majVersionByte << "." << (int)(minVersionByte >> 4) << (int)(minVersionByte & 0x0F) << std::endl;
@@ -121,7 +121,7 @@ namespace jpeg_decoder {
         minVersion +=  std::to_string((int)(minVersionByte & 0x0F));
 
         // Read the image density unit
-        UInt8 densityByte;
+        uint8_t densityByte;
         imgaefile_stream >> std::noskipws >> densityByte;
 
         std::string densityUnit = "";
@@ -135,7 +135,7 @@ namespace jpeg_decoder {
         std::cout << "Image density unit: " << densityUnit << std::endl;
 
         // Read the horizontal and vertical image density
-        UInt16 xDensity = 0, yDensity = 0;
+        uint16_t xDensity = 0, yDensity = 0;
 
         imgaefile_stream.read(reinterpret_cast<char *>(&xDensity), 2);
         imgaefile_stream.read(reinterpret_cast<char *>(&yDensity), 2);
@@ -147,40 +147,46 @@ namespace jpeg_decoder {
         std::cout << "Vertical image density: " << yDensity << std::endl;
 
         // Ignore the image thumbnail data
-        UInt8 xThumb = 0, yThumb = 0;
+        uint8_t xThumb = 0, yThumb = 0;
         imgaefile_stream >> std::noskipws >> xThumb >> yThumb;
         imgaefile_stream.seekg(3 * xThumb * yThumb, std::ios_base::cur);
 
         std::cout << "Finished parsing JPEG/JFIF marker segment (APP-0) [OK]" << std::endl;
+        return ResultCode::SUCCESS;
     }
 
-    void JpegDecoder::parseCOMSegment() {
+    ResultCode JpegDecoder::parseCOMSegment() {
         std::cout << "Parsing comment segment..." << std::endl;
 
         std::cout << "Finished parsing comment segment [OK]" << std::endl;
+        return ResultCode::SUCCESS;
     }
 
-    void JpegDecoder::parseDQTSegment() {
+    ResultCode JpegDecoder::parseDQTSegment() {
         std::cout << "Parsing DQT segment..." << std::endl;
 
         std::cout << "Finished parsing DQT segment [OK]" << std::endl;
+        return ResultCode::SUCCESS;
     }
 
-    void JpegDecoder::parseSOF0Segment() {
+    ResultCode JpegDecoder::parseSOF0Segment() {
         std::cout << "Parsing SOF-0 segment..." << std::endl;
 
         std::cout << "Finished parsing SOF-0 segment [OK]" << std::endl;
+        return ResultCode::SUCCESS;
     }
 
-    void JpegDecoder::parseDHTSegment() {
+    ResultCode JpegDecoder::parseDHTSegment() {
         std::cout << "Parsing DHT segment..." << std::endl;
 
         std::cout << "Finished parsing DHT segment [OK]" << std::endl;
+        return ResultCode::SUCCESS;
     }
 
-    void JpegDecoder::parseSOSSegment() {
+    ResultCode JpegDecoder::parseSOSSegment() {
         std::cout << "Parsing SOS segment..." << std::endl;
 
         std::cout << "Finished parsing SOS segment [OK]" << std::endl;
+        return ResultCode::SUCCESS;
     }
 }

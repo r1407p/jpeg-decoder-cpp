@@ -30,7 +30,15 @@ namespace jpeg_decoder {
         uint8_t readByte();
         void processDQT();
         void processDHT();
+        ResultCode parseAPP0Segment();
 
+        ResultCode parseCOMSegment();
+
+        ResultCode parseDQTSegment();
+        ResultCode parseSOF0Segment();
+
+        ResultCode parseDHTSegment();
+        ResultCode parseSOSSegment();
 
     };
 }
