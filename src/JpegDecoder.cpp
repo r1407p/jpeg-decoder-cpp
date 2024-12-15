@@ -21,4 +21,14 @@ namespace jpeg_decoder {
             std::cout << "Read input file: " << inputFilename << std::endl;
         }
     }
+
+    ResultCode JpegDecoder::decodeJpegFile() {
+        std::cout << "Decode input file: " << inputFilename << std::endl;
+        if (!imgaefile_stream.is_open() || !imgaefile_stream.good())
+        {
+            std::cerr << "Unable scan image file: \'" + std::string(inputFilename) + "\'" << std::endl;
+            return ResultCode::ERROR;
+        }
+
+    }
 }

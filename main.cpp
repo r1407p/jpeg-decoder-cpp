@@ -14,6 +14,7 @@ int main(int argc, char* argv[]) {
 
     jpeg_decoder::JpegDecoder jpegDecoder(argv[1]);
     jpegDecoder.readJpegFile();
+    jpegDecoder.decodeJpegFile();
 
     return 0;
 }

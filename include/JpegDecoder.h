@@ -1,7 +1,8 @@
 #ifndef JPEGDECODER_H
 #define JPEGDECODER_H
 #include <fstream>
-
+#include <iostream>
+#include "Utils.h"
 
 namespace jpeg_decoder {
     class JpegDecoder {
@@ -10,6 +11,7 @@ namespace jpeg_decoder {
         JpegDecoder(const char* inputFilename);
         ~JpegDecoder();
         void readJpegFile();
+        ResultCode decodeJpegFile();
 
     private:
         // Private member variables
