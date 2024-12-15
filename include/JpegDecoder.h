@@ -2,6 +2,7 @@
 #define JPEGDECODER_H
 #include <fstream>
 #include <iostream>
+#include <vector>
 #include "Utils.h"
 
 namespace jpeg_decoder {
@@ -39,6 +40,8 @@ namespace jpeg_decoder {
 
         ResultCode parseDHTSegment();
         ResultCode parseSOSSegment();
+
+        std::vector<std::vector<u_int16_t>> QTables;
 
     };
 }
