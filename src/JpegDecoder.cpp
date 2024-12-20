@@ -157,6 +157,28 @@ namespace jpeg_decoder {
 
     ResultCode JpegDecoder::parseCOMSegment() {
         std::cout << "Parsing comment segment..." << std::endl;
+        uint16_t lenByte = 0;
+        uint8_t byte = 0;
+        std::string comment;
+        imgaefile_stream.read(reinterpret_cast<char *>(&lenByte), 2);
+        lenByte = htons(lenByte);
+        std::size_t curPos = imgaefile_stream.tellg();
+        std::cout<< "Comment segment length: " << lenByte << std::endl;
+
+        for (auto i = 0; i < lenByte - 2; ++i)
+        {
+            imgaefile_stream >> std::noskipws >> byte;
+            
+            if (byte == JFIF_BYTE_FF)
+            {
+                std::cout << "Unexpected start of marker at offest: " << curPos + i << std::endl;
+                std::cout << "Comment segment content: " << comment << std::endl;
+                return ResultCode::ERROR;
+            }
+            
+            comment.push_back(static_cast<char>(byte));
+        }
+        std::cout << "Comment segment content: " << comment << std::endl;
 
         std::cout << "Finished parsing comment segment [OK]" << std::endl;
         return ResultCode::SUCCESS;
@@ -171,7 +193,51 @@ namespace jpeg_decoder {
 
     ResultCode JpegDecoder::parseSOF0Segment() {
         std::cout << "Parsing SOF-0 segment..." << std::endl;
+        uint16_t lenByte, imgHeight, imgWidth;
+        int8_t precision, compCount;
+        
+        imgaefile_stream.read(reinterpret_cast<char *>(&lenByte), 2);
+        lenByte = htons(lenByte);
+        
+        std::cout  << "SOF-0 segment length: " << (int)lenByte << std::endl;
+        
+        imgaefile_stream >> std::noskipws >> precision;
+        std::cout  << "SOF-0 segment data precision: " << (int)precision << std::endl;
+        
+        imgaefile_stream.read(reinterpret_cast<char *>(&imgHeight), 2);
+        imgaefile_stream.read(reinterpret_cast<char *>(&imgWidth), 2);
 
+        imgHeight = htons(imgHeight);
+        imgWidth = htons(imgWidth);
+        
+        std::cout  << "Image height: " << (int)imgHeight << std::endl;
+        std::cout  << "Image width: " << (int)imgWidth << std::endl;
+        
+        imgaefile_stream >> std::noskipws >> compCount;
+        
+        std::cout << "No. of components: " << (int)compCount << std::endl;
+        uint8_t compID = 0, sampFactor = 0, QTNo = 0;
+        bool isNonSampled = true;
+        for (auto i = 0; i < 3; ++i)
+        {
+            imgaefile_stream >> std::noskipws >> compID >> sampFactor >> QTNo;
+            
+            std::cout << "Component ID: " << (int)compID << std::endl;
+            std::cout << "Sampling Factor, Horizontal: " << int(sampFactor >> 4) << ", Vertical: " << int(sampFactor & 0x0F) << std::endl;
+            std::cout << "Quantization table no.: " << (int)QTNo << std::endl;
+            
+            if ((sampFactor >> 4) != 1 || (sampFactor & 0x0F) != 1)
+                isNonSampled = false;
+        }
+        
+        if (!isNonSampled)
+        {
+            std::cout << "Chroma subsampling not yet supported!" << std::endl;
+            std::cout << "Chroma subsampling is not 4:4:4, terminating..." << std::endl;
+            return ResultCode::TERMINATE;
+        }
+        width = imgWidth;
+        height = imgHeight;
         std::cout << "Finished parsing SOF-0 segment [OK]" << std::endl;
         return ResultCode::SUCCESS;
     }
